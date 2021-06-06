@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wall Assignment</title>
+
+    <!-- Bootstrap TAGS from (getbootstrap.com/docs) -->
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+        crossorigin="anonymous"></script>
+    <!-- Bootstrap TAGS -->
+
+</head>
+
+<body>
+    <div class="container mb-5">
+        <div class="d-flex mb-5 bd-highlight border-bottom border-dark border-3">
+            <div class="p-2 flex-grow-1 bd-highlight fs-3 fw-bold">CodingDojo Wall</div>
+            <div class="mx-auto p-3 flex-shrink-0 bd-highlight fs-5 fw-bold" style="width: 250px;">Welcome {{request.session.first_name}}</div>
+            <div class="p-3 flex-shrink-0 bd-highlight">
+                <a href="/">Log off</a>
+            </div>
+        </div>
+        <form action="message/create" method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">Post a message</label>
+                <textarea class="form-control border-dark" rows="3" name="msg_text"></textarea>
+                <button type="submit" class="btn btn-primary shadow d-grid gap-2 col-3 ms-auto mb-5 mt-2">Post a message</button>
+            </div>
+        </form>
+        <ul class="list-group">  <!-- Messages List -->
+            <li class="list-group-item">
+                {% for msg in all_messages %}
+                    <p class="fw-bold">{{msg.user.first_name}} {{msg.user.last_name}} - {{msg.created_at}}</p>
+                    <p class="ms-4">{{msg.message_txt}}</p>
+                    <ul class="list-group"> <!-- Commnets List -->
+                        <li class="list-group ms-4">
+                            {% for cmnt in all_comments %}
+                                {% if cmnt.message.id == msg.id %}
+                                    <p class="fw-bold">{{cmnt.user.first_name}} {{cmnt.user.last_name}} - {{cmnt.created_at}}</p>
+                                    <p class="ms-4">{{cmnt.comment_txt}}</p>
+                                {% endif %}
+                            {% endfor %}
+                            <form action="comment/create" method="POST">
+                                {% csrf_token %}
+                                <div class="mb-3 ms-5">
+                                    <label class="form-label fw-bold">Post a comment</label>
+                                    <textarea class="form-control border-dark" rows="2" name="cmnt_text"></textarea>
+                                    <input type="hidden" name="msg_id" value="{{msg.id}}">
+                                    <button type="submit"
+                                        class="btn btn-success shadow d-grid gap-2 col-3 ms-auto mb-3 mt-2">Post a
+                                        comment</button>
+                                </div>
+                            </form>
+                        </li>
+                    </ul>
+                {% endfor %}
+            </li>
+        </ul>
+    </div>
+</body>
+
+</html>
