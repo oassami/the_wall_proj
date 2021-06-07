@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Message, Comment
 from django.contrib import messages
 from ..login_app.models import User
-from datetime import date, time, datetime
+from datetime import date, time, datetime, timedelta, timezone
 
 def get_day_ordinal(d):
     sDay = '%dth'
@@ -20,6 +20,10 @@ def index(request):
     }
     for k in context:
         for v in context[k]:
+            time_now = datetime.now(timezone.utc)
+            delta = v.created_at + timedelta(minutes=30)
+            if time_now > delta:
+                v.user.id = ''
             v.created_at = get_day_ordinal(v.created_at)
     return render(request, 'wall.html', context)
 
@@ -32,4 +36,9 @@ def cmnt_create(request):
     this_user = User.objects.get(id=request.session['user_id'])
     this_msg = Message.objects.get(id=request.POST['msg_id'])
     my_comment = Comment.objects.create(comment_txt=request.POST['cmnt_text'], user=this_user, message=this_msg)
+    return redirect('/wall')
+
+def msg_delete(request, msg_id):
+    msg = Message.objects.get(id=msg_id)
+    msg.delete()
     return redirect('/wall')
